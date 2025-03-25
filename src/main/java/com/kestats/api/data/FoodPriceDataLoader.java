@@ -70,13 +70,13 @@ public class FoodPriceDataLoader implements CommandLineRunner {
 
     @Transactional
     public void loadData() {
-        List<CSVRecord> records = readCSV("/Users/admin/Documents/KE STATS/API/api/src/main/resources/data/data.csv");
+        List<CSVRecord> records = readCSV("/Users/admin/Documents/KE STATS/APP/api/src/main/resources/data/data.csv");
         List<AdminLevel1> admin1s = this.getAdmin1s(records);
         List<AdminLevel2> admin2s = this.getAdmin2s(records);
         List<Category> categories = this.getCategories(records);
         List<Commodity> commodities = this.getCommodities(records);
         List<Market> markets = this.getMarkets(records);
-        // List<CommodityPrice> commodityPrices = this.getCommodityPrices(records);
+        List<CommodityPrice> commodityPrices = this.getCommodityPrices(records);
         // System.out.println("Number of commodity prices: " + commodityPrices.size());
 
         if (this.admin1Repository.count() >= 1) {
@@ -91,7 +91,7 @@ public class FoodPriceDataLoader implements CommandLineRunner {
             this.categoryRepository.saveAll(categories);
             this.commodityRepository.saveAll(commodities);
             this.marketRepository.saveAll(markets);
-            // this.commodityPriceRepository.saveAll(commodityPrices);
+            this.commodityPriceRepository.saveAll(commodityPrices);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -148,9 +148,8 @@ public class FoodPriceDataLoader implements CommandLineRunner {
             AdminLevel2 adminLevel2 = new AdminLevel2();
             adminLevel2.setId(admin2id);
             market.setAdminLevel2(adminLevel2);
-            GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
-            Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
-            market.setLocation(point);
+            market.setLat(latitude);
+            market.setLng(longitude);
             markets.add(market);
         }
         return markets;
@@ -312,7 +311,9 @@ public class FoodPriceDataLoader implements CommandLineRunner {
             commodityPrice.setPrice(price);
             commodityPrice.setCreatedAt(now);
             commodityPrice.setUpdatedAt(now);
-
+            commodityPrice.setCommodity_name(commodity);
+            commodityPrice.setCategory_name(category);
+            commodityPrice.setMarket_name(market);
             Market mkt = new Market();
             mkt.setId(marketid);
             commodityPrice.setMarket(mkt);

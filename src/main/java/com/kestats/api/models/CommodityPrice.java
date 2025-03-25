@@ -40,7 +40,9 @@ public class CommodityPrice {
     Float usdprice;
     String pricetype;
     String priceflag;
-
+    String commodity_name;
+    String category_name;
+    String market_name;
     @ManyToOne
     @JoinColumn(name = "adminlevel1id")
     @JsonIgnore

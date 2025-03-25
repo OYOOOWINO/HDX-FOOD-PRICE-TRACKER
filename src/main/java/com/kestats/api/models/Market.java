@@ -58,4 +58,8 @@ public class Market {
     @OneToMany(mappedBy = "market")
     private List<CommodityPrice> commodityPrices;
 
+    private Float lat;
+
+    private Float lng;
+
 }

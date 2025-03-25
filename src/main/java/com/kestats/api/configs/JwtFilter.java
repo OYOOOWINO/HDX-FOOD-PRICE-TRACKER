@@ -31,10 +31,12 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-            System.out.println("JWT FILTEr");
         // extract Bearer token
         String authHeader = request.getHeader("Authorization");
         String token = null;
+        // This code snippet is from the `doFilterInternal` method of the `JwtFilter`
+        // class in a Java Spring
+        // application. Let's break down what it is doing:
         String username = null;
         System.out.println("GOT HERE 001");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -48,16 +50,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // create authentication object
-            System.out.println("GOT HERE 1");
             UserDetails userDetails = context.getBean(AppUserDetailsService.class).loadUserByUsername(username);
-            Boolean isValidToken =  jwtService.validateToken(token, userDetails.getUsername());
-            System.out.println("isValidToken: "+ isValidToken);
+            Boolean isValidToken = jwtService.validateToken(token, userDetails.getUsername());
             if (isValidToken) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                System.out.println("GOT HERE 2" +  userDetails.getUsername());
             }
         }
         filterChain.doFilter(request, response);
