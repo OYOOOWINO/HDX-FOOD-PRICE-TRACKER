@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kestats.api.NotFoundException;
 import com.kestats.api.models.CommodityPrice;
 import com.kestats.api.repository.CommodityPriceRepository;
-import com.kestats.api.repository.pages.PricesPagingRepository;
+import com.kestats.api.services.CommodityPriceService;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,19 +28,26 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping("/api/prices")
 public class CommodityPriceController {
     private final CommodityPriceRepository commodityPriceRepository;
-    private final PricesPagingRepository pagingRepository;
+    private final CommodityPriceService commodityPriceService;
 
     public CommodityPriceController(CommodityPriceRepository commodityPriceRepository,
-            PricesPagingRepository pagingRepository) {
+            CommodityPriceService commodityPriceService) {
         this.commodityPriceRepository = commodityPriceRepository;
-        this.pagingRepository = pagingRepository;
+        this.commodityPriceService = commodityPriceService;
     }
 
     @GetMapping("")
-    Page<CommodityPrice> findAll(@RequestParam int page, @RequestParam int size) {
-        System.out.println("GOT MEME");
+    public Page<CommodityPrice> filterCommodityPrices(
+            @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) UUID marketId,
+            @RequestParam(required = false) UUID commodityId,
+            @RequestParam(required = false) UUID admin1Id,
+            @RequestParam(required = false) UUID admin2Id,
+            @RequestParam int page, @RequestParam int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        return this.pagingRepository.findAll(pageRequest);
+        var prices =  commodityPriceService.getFilteredCommodityPrices(categoryId, marketId, commodityId, admin1Id, admin2Id,
+                pageRequest);
+                return prices;
     }
 
     @GetMapping("/{id}")
