@@ -68,14 +68,13 @@ public class FoodPriceDataLoader implements CommandLineRunner {
 
     @Transactional
     public void loadData() {
-        List<CSVRecord> records = readCSV("/Users/admin/Documents/STAT/api/src/main/resources/data/data.csv");
+        List<CSVRecord> records = readCSV("/Users/admin/Documents/STAT/backend/src/main/resources/data/data.csv");
         List<AdminLevel1> admin1s = this.getAdmin1s(records);
         List<AdminLevel2> admin2s = this.getAdmin2s(records);
         List<Category> categories = this.getCategories(records);
         List<Commodity> commodities = this.getCommodities(records);
         List<Market> markets = this.getMarkets(records);
         List<CommodityPrice> commodityPrices = this.getCommodityPrices(records);
-        // System.out.println("Number of commodity prices: " + commodityPrices.size());
 
         if (this.admin1Repository.count() >= 1) {
             System.out.println("Not Loading Data, Records Exists");
@@ -83,7 +82,6 @@ public class FoodPriceDataLoader implements CommandLineRunner {
         }
 
         try {
-            // System.out.println(admin1s);
             this.admin1Repository.saveAll(admin1s);
             this.admin2Repository.saveAll(admin2s);
             this.categoryRepository.saveAll(categories);
@@ -256,7 +254,7 @@ public class FoodPriceDataLoader implements CommandLineRunner {
             String unitName = record.get(FoodPriceCSVHeaders.unit);
             String categoryName = record.get(FoodPriceCSVHeaders.category);
 
-            UUID id = UUID.nameUUIDFromBytes((name).getBytes(StandardCharsets.UTF_8));
+            UUID id = UUID.nameUUIDFromBytes((name.trim() + unitName.trim()).getBytes(StandardCharsets.UTF_8));
             UUID categoryid = UUID.nameUUIDFromBytes(categoryName.getBytes(StandardCharsets.UTF_8));
             UUID unitId = UUID.nameUUIDFromBytes(unitName.getBytes(StandardCharsets.UTF_8));
             // Skip duplicates
@@ -266,7 +264,7 @@ public class FoodPriceDataLoader implements CommandLineRunner {
             ids.add(id.toString());
             Commodity commodity = new Commodity();
             commodity.setId(id);
-            commodity.setName(name);
+            commodity.setName((name + " "+ unitName).trim());
             Unit unit = new Unit();
             unit.setId(unitId);
             commodity.setUnit(unitName);
@@ -295,13 +293,14 @@ public class FoodPriceDataLoader implements CommandLineRunner {
             Float usdprice = Float.parseFloat(record.get(FoodPriceCSVHeaders.usdprice));
             String pricetype = record.get(FoodPriceCSVHeaders.pricetype).toUpperCase();
             String priceflag = record.get(FoodPriceCSVHeaders.priceflag).toUpperCase();
-            LocalDate created_at =  LocalDate.parse(record.get(FoodPriceCSVHeaders.date));
+            LocalDate created_at = LocalDate.parse(record.get(FoodPriceCSVHeaders.date));
             UUID id = UUID.randomUUID();
             UUID marketid = UUID.nameUUIDFromBytes(market.getBytes(StandardCharsets.UTF_8));
             UUID categoryid = UUID.nameUUIDFromBytes(category.getBytes(StandardCharsets.UTF_8));
             UUID admin1id = UUID.nameUUIDFromBytes(admin1.getBytes(StandardCharsets.UTF_8));
             UUID admin2id = UUID.nameUUIDFromBytes(admin2.getBytes(StandardCharsets.UTF_8));
-            UUID commodityid = UUID.nameUUIDFromBytes((commodity).getBytes(StandardCharsets.UTF_8));
+            UUID commodityid = UUID.nameUUIDFromBytes((commodity.trim() + unitName.trim()).getBytes(StandardCharsets.UTF_8));
+            //(name.trim() + unitName.trim()
             CommodityPrice commodityPrice = new CommodityPrice();
             commodityPrice.setId(id);
             commodityPrice.setUsdprice(usdprice);
